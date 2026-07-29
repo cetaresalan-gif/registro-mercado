@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control de Entregas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="bg-slate-100 min-h-screen flex flex-col justify-center items-center p-4">
+
+  <!-- Header de Mesa -->
+  <div class="w-full max-w-2xl flex justify-between items-center mb-4 px-2">
+    <div class="flex items-center space-x-2">
+      <span class="inline-block w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+      <h1 class="text-xl font-bold text-slate-800">Control de Entregas</h1>
+    </div>
+    <div class="bg-white px-4 py-1.5 rounded-full shadow text-sm font-semibold text-slate-700 flex items-center gap-2">
+      <span id="labelMesa" class="font-bold text-blue-700">Cargando mesa...</span>
+      <button onclick="solicitarMesa()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full border border-slate-300">⚙️ Cambiar Mesa</button>
+    </div>
+  </div>
+
+  <!-- Formulario Principal -->
+  <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl p-6 md:p-8 border border-slate-200">
+    <form id="registroForm" onsubmit="procesarRegistro(event)">
+      
+      <!-- Cédula -->
+      <div class="mb-5">
+        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Cédula del Ciudadano *</label>
+        <input type="number" id="cedula" required placeholder="Ingrese número de documento sin puntos" 
+               class="w-full text-2xl font-bold px-4 py-3 rounded-xl border-2 border-slate-300 focus:border-blue-600 focus:outline-none transition">
+      </div>
+
+      <!-- Nombre y Edad -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+        <div class="md:col-span-2">
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Nombre Completo *</label>
+          <input type="text" id="nombre" required placeholder="Nombre y Apellidos" 
+                 class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-300 focus:border-blue-600 focus:outline-none font-semibold">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Edad *</label>
+          <input type="number" id="edad" required placeholder="Años" 
+                 class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-300 focus:border-blue-600 focus:outline-none font-semibold">
+        </div>
+      </div>
+
+      <!-- Género -->
+      <div class="mb-5">
+        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Género *</label>
+        <div class="grid grid-cols-2 gap-4">
+          <label class="flex items-center justify-center p-3 border-2 border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50 font-bold text-slate-700">
+            <input type="radio" name="genero" value="HOMBRE" required class="mr-2 w-4 h-4 text-blue-600"> HOMBRE
+          </label>
+          <label class="flex items-center justify-center p-3 border-2 border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50 font-bold text-slate-700">
+            <input type="radio" name="genero" value="MUJER" required class="mr-2 w-4 h-4 text-blue-600"> MUJER
+          </label>
+        </div>
+      </div>
+
+      <!-- Vulnerabilidades -->
+      <div class="mb-6">
+        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Condición de Población Vulnerable</label>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+          <label class="flex items-center justify-center p-3 border-2 border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50 font-semibold text-slate-700 text-xs md:text-sm">
+            <input type="checkbox" id="indigena" onclick="desmarcarNinguna()" class="mr-1.5 w-4 h-4"> INDÍGENA
+          </label>
+          <label class="flex items-center justify-center p-3 border-2 border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50 font-semibold text-slate-700 text-xs md:text-sm">
+            <input type="checkbox" id="afro" onclick="desmarcarNinguna()" class="mr-1.5 w-4 h-4"> AFRO
+          </label>
+          <label class="flex items-center justify-center p-3 border-2 border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50 font-semibold text-slate-700 text-xs md:text-sm">
+            <input type="checkbox" id="victima" onclick="desmarcarNinguna()" class="mr-1.5 w-4 h-4"> VÍCTIMA
+          </label>
+          <label class="flex items-center justify-center p-3 border-2 border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 font-bold text-emerald-800 text-xs md:text-sm">
+            <input type="checkbox" id="ninguna" onclick="desmarcarOtras()" class="mr-1.5 w-4 h-4"> NINGUNA
+          </label>
+        </div>
+      </div>
+
+      <!-- BOTÓN GIGANTE CENTRADO -->
+      <div class="pt-2">
+        <button type="submit" id="btnGuardar" 
+                class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xl py-4 rounded-xl shadow-lg transform active:scale-95 transition flex items-center justify-center gap-2">
+          <span>✓ GUARDAR Y REGISTRAR</span>
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+  <script>
+    // PEGA AQUÍ LA URL DE TU APLICACIÓN WEB DE GOOGLE APPS SCRIPT
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/TU_DEPLOYMENT_ID_AQUI/exec';
+
+    let mesaActual = localStorage.getItem('mesaActual');
+
+    window.onload = function() {
+      if (!mesaActual) {
+        solicitarMesa();
+      } else {
+        actualizarLabelMesa();
+      }
+    };
+
+    function solicitarMesa() {
+      Swal.fire({
+        title: 'Configuración de Estación',
+        text: 'Escribe el nombre o número de esta mesa (Ej: MESA 1, MESA 6, MESA AUXILIAR):',
+        input: 'text',
+        inputValue: mesaActual || 'MESA 1',
+        inputValidator: (value) => { if (!value) return '¡Debes ingresar el nombre de la mesa!' },
+        allowOutsideClick: false,
+        confirmButtonText: 'Guardar Mesa',
+        confirmButtonColor: '#2563eb'
+      }).then((result) => {
+        mesaActual = result.value.toUpperCase().trim();
+        localStorage.setItem('mesaActual', mesaActual);
+        actualizarLabelMesa();
+      });
+    }
+
+    function actualizarLabelMesa() {
+      document.getElementById('labelMesa').innerText = mesaActual;
+    }
+
+    function desmarcarNinguna() {
+      if (document.getElementById('indigena').checked || 
+          document.getElementById('afro').checked || 
+          document.getElementById('victima').checked) {
+        document.getElementById('ninguna').checked = false;
+      }
+    }
+
+    function desmarcarOtras() {
+      if (document.getElementById('ninguna').checked) {
+        document.getElementById('indigena').checked = false;
+        document.getElementById('afro').checked = false;
+        document.getElementById('victima').checked = false;
+      }
+    }
+
+    async function procesarRegistro(e) {
+      e.preventDefault();
+      
+      const btn = document.getElementById('btnGuardar');
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳ Verificando y Guardando...</span>';
+
+      const datos = {
+        cedula: document.getElementById('cedula').value,
+        nombre: document.getElementById('nombre').value,
+        edad: document.getElementById('edad').value,
+        genero: document.querySelector('input[name="genero"]:checked')?.value,
+        indigena: document.getElementById('indigena').checked,
+        afro: document.getElementById('afro').checked,
+        victima: document.getElementById('victima').checked,
+        ninguna: document.getElementById('ninguna').checked,
+        mesa: mesaActual
+      };
+
+      try {
+        const response = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(datos)
+        });
+
+        const respuesta = await response.json();
+
+        btn.disabled = false;
+        btn.innerHTML = '<span>✓ GUARDAR Y REGISTRAR</span>';
+
+        if (respuesta.status === 'DUPLICADO') {
+          Swal.fire({
+            icon: 'error',
+            title: '⚠️ ¡ALERTA DE DUPLICADO!',
+            html: `<p class="text-lg">Esta cédula <b>YA RECIBIÓ MERCADO</b>.</p>
+                   <div class="mt-3 p-3 bg-red-100 rounded-lg text-red-800 font-semibold">
+                     Registrado en: <b>${respuesta.mesa}</b><br>
+                     Hora: <b>${respuesta.hora}</b>
+                   </div>`,
+            confirmButtonText: 'ENTENDIDO / CANCELAR',
+            confirmButtonColor: '#dc2626',
+            backdrop: `rgba(220,38,38,0.4)`
+          });
+        } else if (respuesta.status === 'EXITO') {
+          Swal.fire({
+            icon: 'success',
+            title: '¡Entrega Registrada!',
+            text: 'El registro se guardó en Google Sheets.',
+            timer: 1200,
+            showConfirmButton: false
+          });
+
+          document.getElementById('registroForm').reset();
+          document.getElementById('cedula').focus();
+        } else {
+          Swal.fire({ icon: 'error', title: 'Error', text: respuesta.message || 'Error al guardar.' });
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = '<span>✓ GUARDAR Y REGISTRAR</span>';
+        Swal.fire({ icon: 'error', title: 'Error de Red', text: 'No se pudo conectar con la base de datos. Revisa la conexión a internet.' });
+      }
+    }
+  </script>
+</body>
+</html>
